@@ -14,9 +14,28 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 # Check if any command is provided
 if [ -z "${1:-}" ]; then
-  echo "Error: No command provided." >&2
-  echo "Usage: $0 new story <project-name>" >&2
-  exit 1
+  # --- Interactive Mode ---
+  echo "What would you like to do?"
+  options=("Create a new story project" "Quit")
+  select opt in "${options[@]}"; do
+    case $opt in
+      "Create a new story project")
+        read -p "Enter the project name: " PROJECT_NAME
+        # Ensure project name is not empty
+        if [ -n "$PROJECT_NAME" ]; then
+          bash "${SCRIPT_DIR}/../scripts/create-story.sh" "$PROJECT_NAME"
+        else
+          echo "Project name cannot be empty." >&2
+        fi
+        break
+        ;;
+      "Quit")
+        break
+        ;;
+      *) echo "Invalid option $REPLY" ;;
+    esac
+  done
+  exit 0
 fi
 
 COMMAND=$1 # e.g., "new"

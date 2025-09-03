@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# -----------------------------------------------------------------------------
+# ct (Control Tower)
+#
+# The main entry point for all control-tower commands.
+# This script acts as a router to other specialized scripts.
+# -----------------------------------------------------------------------------
+
+set -euo pipefail
+
+# Find the directory where this script is located
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
+# Check if any command is provided
+if [ -z "${1:-}" ]; then
+  echo "Error: No command provided." >&2
+  echo "Usage: $0 new story <project-name>" >&2
+  exit 1
+fi
+
+COMMAND=$1 # e.g., "new"
+
+case "$COMMAND" in
+  new)
+    SUB_COMMAND=${2:-} # Safely get the second argument (e.g., "story")
+
+    case "$SUB_COMMAND" in
+      story)
+        PROJECT_NAME=${3:-} # Safely get the third argument (the project name)
+        if [ -z "$PROJECT_NAME" ]; then
+          echo "Error: Project name is required for 'new story'." >&2
+          echo "Usage: $0 new story <project-name>" >&2
+          exit 1
+        fi
+        # Call the script with the validated project name
+        bash "${SCRIPT_DIR}/../scripts/create-story.sh" "$PROJECT_NAME"
+        ;;
+      *)
+        echo "Error: Unknown or missing type for 'new' command. Available: 'story'" >&2
+        echo "Usage: $0 new story <project-name>" >&2
+        exit 1
+        ;;
+    esac
+    ;;
+  *)
+    echo "Error: Unknown command '$COMMAND'. Available: 'new'" >&2
+    echo "Usage: $0 new story <project-name>" >&2
+    exit 1
+    ;;
+esac

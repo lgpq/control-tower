@@ -33,4 +33,15 @@ echo "Creating new story project: $PROJECT_NAME..."
 
 git clone "$STORY_FORGE_TEMPLATE_URL" "../$PROJECT_NAME"
 
-echo "✅ Successfully created '$PROJECT_NAME' in the parent directory."
+PROJECT_PATH="../$PROJECT_NAME" # Define project path for clarity
+
+echo "Initializing as a new, clean repository..."
+rm -rf "${PROJECT_PATH}/.git"
+
+# Initialize a new git repository
+git -C "$PROJECT_PATH" init -b main
+git -C "$PROJECT_PATH" add .
+# Create the initial commit for the new project
+git -C "$PROJECT_PATH" commit -m "feat: initial commit from story-forge-template"
+
+echo "✅ Successfully created and initialized project: ${PROJECT_NAME}"

@@ -63,24 +63,29 @@ COMMAND=$1 # e.g., "new"
 case "$COMMAND" in
   new)
     SUB_COMMAND=${2:-} # Safely get the second argument (e.g., "story")
+    PROJECT_NAME=${3:-} # Safely get the third argument (the project name)
 
-    case "$SUB_COMMAND" in
-      story)
-        PROJECT_NAME=${3:-} # Safely get the third argument (the project name)
-        if [ -z "$PROJECT_NAME" ]; then
-          echo "Error: Project name is required for 'new story'." >&2
-          echo "Usage: $0 new story <project-name>" >&2
-          exit 1
-        fi
-        # Call the script with the validated project name
-        bash "${SCRIPT_DIR}/../scripts/create-story.sh" "$PROJECT_NAME"
-        ;;
-      *)
-        echo "Error: Unknown or missing type for 'new' command. Available: 'story'" >&2
-        echo "Usage: $0 new story <project-name>" >&2
-        exit 1
-        ;;
-    esac
+    # Validate that a subcommand and project name are provided
+    if [ -z "$SUB_COMMAND" ] || [ -z "$PROJECT_NAME" ]; then
+      echo "Error: Both a type and project name are required." >&2
+      echo "Usage: $0 new <type> <project-name>" >&2
+      exit 1
+    fi
+
+    # Construct the expected script path from the subcommand
+    TARGET_SCRIPT="${SCRIPT_DIR}/../scripts/create-${SUB_COMMAND}.sh"
+
+    # Check if the corresponding script exists
+    if [ -f "$TARGET_SCRIPT" ]; then
+      # Execute the script if it exists
+      bash "$TARGET_SCRIPT" "$PROJECT_NAME"
+    else
+      # If not, show an error with available types
+      available_types=$(ls -1 "${SCRIPT_DIR}/../scripts" | grep 'create-.*\.sh' | sed -e 's/create-//' -e 's/\.sh//' | tr '\n' ' ')
+      echo "Error: Unknown type '$SUB_COMMAND'." >&2
+      echo "Available types: ${available_types}" >&2
+      exit 1
+    fi
     ;;
   *)
     echo "Error: Unknown command '$COMMAND'. Available: 'new'" >&2

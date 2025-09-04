@@ -15,18 +15,21 @@
 
 set -euo pipefail
 
+# Find the absolute path of the repository's root directory (the parent of 'scripts')
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)
+
 # --- Configuration ---
 STORY_FORGE_TEMPLATE_URL="https://github.com/lgpq/story-forge-template.git" # ✅
 
 # --- Main Logic ---
 
 PROJECT_NAME=$1 # The project name is validated and passed from the main 'ct' script.
+PROJECT_PATH="${REPO_ROOT}/../${PROJECT_NAME}" # Define project path relative to the workspace
 
 echo "Creating new story project: ${PROJECT_NAME}..."
+echo "Target location: ${PROJECT_PATH}"
 
-git clone "$STORY_FORGE_TEMPLATE_URL" "../${PROJECT_NAME}"
-
-PROJECT_PATH="../${PROJECT_NAME}" # Define project path for clarity
+git clone "$STORY_FORGE_TEMPLATE_URL" "$PROJECT_PATH"
 
 echo "Initializing as a new, clean repository..."
 rm -rf "${PROJECT_PATH}/.git"
